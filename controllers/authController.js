@@ -58,7 +58,7 @@ export const forgotPassword = async (req, res) => {
   faculty.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
   await faculty.save();
 
-  const resetLink = `http://localhost:3000/reset-password/${token}`;
+  const resetLink = `https://digittencebe-production.up.railway.app/reset-password/${token}`;
 
   await sendEmail(
     faculty.email,
