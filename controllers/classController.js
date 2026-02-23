@@ -9,7 +9,9 @@ export const createClass = async (req, res) => {
 };
 
 export const getClasses = async (req, res) => {
-  const classes = await Class.find().populate("faculty", "name email");
+  const classes = await Class.find({ faculty: req.facultyId })
+    .sort({ createdAt: -1 });
+
   res.json(classes);
 };
 

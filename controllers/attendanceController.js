@@ -2,18 +2,32 @@ import Attendance from "../models/Attendance.js";
 
 export const markAttendance = async (req, res) => {
   try {
-    const { records } = req.body;
+    const { class: classId, subject, date, hours, records } = req.body;
 
-    await Attendance.insertMany(records, { ordered: false });
+    for (const r of records) {
+      await Attendance.updateOne(
+        {
+          student: r.student,
+          class: classId,
+          subject,
+          date
+        },
+        {
+          faculty: req.facultyId,
+          student: r.student,
+          class: classId,
+          subject,
+          date,
+          hours,
+          status: r.status
+        },
+        { upsert: true }
+      );
+    }
 
-    res.json({ message: "Attendance saved" });
+    res.json({ message: "Attendance saved successfully" });
+
   } catch (err) {
-    if (err.code === 11000) {
-  return res.status(409).json({
-    message: "Attendance already marked for this subject on this date"
-  });
-}
     res.status(500).json({ message: err.message });
   }
 };
-

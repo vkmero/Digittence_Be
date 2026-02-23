@@ -1,8 +1,18 @@
 import mongoose from "mongoose";
 
-const classSchema = new mongoose.Schema({
-  className: String,
-  faculty: { type: mongoose.Schema.Types.ObjectId, ref: "Faculty" }
-});
+const classSchema = new mongoose.Schema(
+  {
+    className: {
+      type: String,
+      required: true
+    },
+    faculty: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Faculty",
+      required: true
+    }
+  },
+  { timestamps: true }
+);
 
 export default mongoose.model("Class", classSchema);
