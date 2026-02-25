@@ -1,4 +1,5 @@
 import Class from "../models/Class.js";
+import Attendance from "../models/Attendance.js";
 
 export const createClass = async (req, res) => {
   const newClass = await Class.create({
@@ -9,32 +10,51 @@ export const createClass = async (req, res) => {
 };
 
 export const getClasses = async (req, res) => {
-  const classes = await Class.find({ faculty: req.facultyId })
-    .sort({ createdAt: -1 });
-
-  res.json(classes);
+  try {
+    const classes = await Class.find().populate("faculty", "name email");
+    res.json(classes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 export const updateClass = async (req, res) => {
-  const cls = await Class.findById(req.params.id);
-  if (!cls) return res.status(404).json({ message: "Class not found" });
+  try {
+    const classDoc = await Class.findById(req.params.id);
 
-  if (cls.faculty.toString() !== req.facultyId)
-    return res.status(403).json({ message: "Not allowed" });
+    if (!classDoc) {
+      return res.status(404).json({ message: "Class not found" });
+    }
 
-  cls.className = req.body.className;
-  await cls.save();
+    if (classDoc.faculty.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
 
-  res.json(cls);
+    classDoc.className = req.body.className;
+    await classDoc.save();
+
+    res.json(classDoc);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 export const deleteClass = async (req, res) => {
-  const cls = await Class.findById(req.params.id);
-  if (!cls) return res.status(404).json({ message: "Class not found" });
+  try {
+    const classDoc = await Class.findById(req.params.id);
 
-  if (cls.faculty.toString() !== req.facultyId)
-    return res.status(403).json({ message: "Not allowed" });
+    if (!classDoc) {
+      return res.status(404).json({ message: "Class not found" });
+    }
 
-  await cls.deleteOne();
-  res.json({ message: "Class deleted" });
+    if (classDoc.faculty.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    await classDoc.deleteOne();
+
+    res.json({ message: "Class deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
