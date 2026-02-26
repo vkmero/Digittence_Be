@@ -4,7 +4,9 @@ const classSchema = new mongoose.Schema(
   {
     className: {
       type: String,
-      required: true
+      required: true,
+      unique: true,
+      trim: true
     },
     faculty: {
       type: mongoose.Schema.Types.ObjectId,
