@@ -22,6 +22,7 @@ const allowedOrigins = [
   "https://digittencee.netlify.app"
 ];
 
+// ✅ MUST BE FIRST MIDDLEWARE
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
@@ -33,10 +34,23 @@ app.use(cors({
       return callback(null, true);
     }
 
-    return callback(null, false);
+    return callback(null, true); 
   },
   credentials: true
 }));
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 app.use(express.json());
 
