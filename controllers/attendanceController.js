@@ -13,14 +13,16 @@ export const markAttendance = async (req, res) => {
     }
 
     const latestAttendance = await Attendance.findOne({
-    class: classId,
-    subject,
-    date
+      class: classId,
+      subject,
+      date
     }).sort({ attendanceSlot: -1 });
 
-    const attendanceSlot = latestAttendance
-      ? latestAttendance.attendanceSlot + 1
-      : 1;
+    let attendanceSlot = 1;
+
+    if (latestAttendance) {
+      attendanceSlot = (latestAttendance.attendanceSlot ?? 1) + 1;
+    }
 
     const attendanceData = records.map(record => ({
       faculty: req.facultyId,
