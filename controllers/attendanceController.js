@@ -12,29 +12,15 @@ export const markAttendance = async (req, res) => {
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    const subjectAlreadyMarked = await Attendance.findOne({
-      class: classId,
-      subject,
-      date
-    });
+    const latestAttendance = await Attendance.findOne({
+    class: classId,
+    subject,
+    date
+    }).sort({ attendanceSlot: -1 });
 
-    if (subjectAlreadyMarked) {
-      return res.status(400).json({
-        message: "Attendance already marked for this subject today"
-      });
-    }
-
-    const facultyAlreadyMarked = await Attendance.findOne({
-      class: classId,
-      faculty: req.facultyId,
-      date
-    });
-
-    if (facultyAlreadyMarked) {
-      return res.status(400).json({
-        message: "You have already marked attendance for this class today"
-      });
-    }
+    const attendanceSlot = latestAttendance
+      ? latestAttendance.attendanceSlot + 1
+      : 1;
 
     const attendanceData = records.map(record => ({
       faculty: req.facultyId,
@@ -42,6 +28,7 @@ export const markAttendance = async (req, res) => {
       class: classId,
       subject,
       date,
+      attendanceSlot,
       hours,
       status: record.status
     }));

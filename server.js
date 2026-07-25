@@ -22,7 +22,6 @@ const allowedOrigins = [
   "https://digittencee.netlify.app"
 ];
 
-// ✅ MUST BE FIRST MIDDLEWARE
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);

@@ -24,6 +24,10 @@ const attendanceSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  attendanceSlot: {
+    type: Number,
+    required: true
+  },
   hours: {
     type: Number,
     required: true
@@ -36,7 +40,13 @@ const attendanceSchema = new mongoose.Schema({
 });
 
 attendanceSchema.index(
-  { student: 1, class: 1, subject: 1, date: 1 },
+  {
+    student: 1,
+    class: 1,
+    subject: 1,
+    date: 1,
+    attendanceSlot: 1
+  },
   { unique: true }
 );
 
