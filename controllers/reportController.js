@@ -1,5 +1,6 @@
 import Attendance from "../models/Attendance.js";
 import generateExcel from "../utils/generateExcel.js";
+import Class from "../models/Class.js";
 
 export const generateReport = async (req, res) => {
   const { classId, start, end } = req.body;
@@ -7,6 +8,12 @@ export const generateReport = async (req, res) => {
   const startDate = new Date(start);
   const endDate = new Date(end);
   endDate.setHours(23, 59, 59, 999);
+
+  const classData = await Class.findById(classId);
+
+  if (!classData) {
+    return res.status(404).json({ message: "Class not found" });
+  }
 
 const attendance = await Attendance.find({
   faculty: req.facultyId,
@@ -37,6 +44,11 @@ const attendance = await Attendance.find({
   });
 
   const finalData = Object.values(report);
-
-  await generateExcel(finalData, res);
+  await generateExcel(
+  finalData,
+  res,
+  classData.name,
+  startDate,
+  endDate
+);
 };
