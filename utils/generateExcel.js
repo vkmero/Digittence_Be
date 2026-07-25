@@ -45,7 +45,7 @@ const formatDate = (date) => {
   return `${day}-${month}-${year}`;
 };
 
-const safeClassName = className
+const safeClassName = (className || "Attendance_Report")
   .trim()
   .replace(/\s+/g, "_")
   .replace(/[<>:"/\\|?*]/g, "");

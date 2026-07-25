@@ -47,7 +47,7 @@ const attendance = await Attendance.find({
   await generateExcel(
   finalData,
   res,
-  classData.name,
+  classData.className,
   startDate,
   endDate
 );
