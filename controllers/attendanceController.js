@@ -13,10 +13,12 @@ export const markAttendance = async (req, res) => {
       return res.status(401).json({ message: "Not authorized" });
     }
 
+    const attendanceDate = new Date(date);
+
     const latestAttendance = await Attendance.findOne({
       class: classId,
       subject,
-      date
+      date: attendanceDate
     }).sort({ attendanceSlot: -1 });
 
     let attendanceSlot = 1;
@@ -36,7 +38,7 @@ export const markAttendance = async (req, res) => {
       student: student._id,
       class: classId,
       subject,
-      date,
+      date: attendanceDate,
       attendanceSlot,
       hours,
       status: absentStudents.has(student._id.toString()) ? "A" : "P"
@@ -92,5 +94,86 @@ export const getAttendance = async (req, res) => {
     res.status(500).json({
       message: err.message
     });
+  }
+};
+
+export const updateAttendance = async (req, res) => {
+  try {
+
+    const {
+      classId,
+      subject,
+      date,
+      attendanceSlot,
+      records
+    } = req.body;
+
+    if (!classId || !subject || !date || !attendanceSlot || !records) {
+      return res.status(400).json({
+        message: "Missing fields"
+      });
+    }
+
+    for (const record of records) {
+
+      await Attendance.findOneAndUpdate(
+        {
+          class: classId,
+          subject,
+          date: new Date(date),
+          attendanceSlot,
+          student: record.student
+        },
+        {
+          status: record.status
+        }
+      );
+
+    }
+
+    res.json({
+      message: "Attendance updated successfully"
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      message: err.message
+    });
+
+  }
+};
+
+export const getAttendanceSlots = async (req, res) => {
+  try {
+
+    const { classId, subject, date } = req.query;
+
+    if (!classId || !subject || !date) {
+      return res.status(400).json({
+        message: "Missing required fields"
+      });
+    }
+
+    const slots = await Attendance.distinct("attendanceSlot", {
+      class: classId,
+      subject,
+      date: new Date(date)
+    });
+
+    slots.sort((a, b) => a - b);
+
+    res.json(slots);
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      message: err.message
+    });
+
   }
 };
