@@ -1,4 +1,5 @@
 import Attendance from "../models/Attendance.js";
+import Student from "../models/Student.js";
 
 export const markAttendance = async (req, res) => {
   try {
@@ -24,17 +25,24 @@ export const markAttendance = async (req, res) => {
       attendanceSlot = (latestAttendance.attendanceSlot ?? 1) + 1;
     }
 
-    const attendanceData = records.map(record => ({
+    const students = await Student.find({ class: classId });
+
+    const absentStudents = new Set(
+      records.map(record => record.student.toString())
+    );
+
+    const attendanceData = students.map(student => ({
       faculty: req.facultyId,
-      student: record.student,
+      student: student._id,
       class: classId,
       subject,
       date,
       attendanceSlot,
       hours,
-      status: record.status
+      status: absentStudents.has(student._id.toString()) ? "A" : "P"
     }));
 
+    console.log(attendanceData.slice(0,5));
     await Attendance.insertMany(attendanceData);
 
     res.json({ message: "Attendance saved successfully" });
